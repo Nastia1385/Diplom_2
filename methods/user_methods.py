@@ -1,5 +1,7 @@
 import requests
+
 from urls import Endpoints
+
 
 class UserMethods:
     """Класс для работы с методами пользователя."""

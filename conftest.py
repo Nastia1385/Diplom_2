@@ -1,52 +1,8 @@
-# import pytest
-# import requests
-# from faker import Faker
-# from data.test_data import urls, UserData
-# from helpers.api_helpers import ApiHelpers
-#
-# fake = Faker()
-#
-# @pytest.fixture
-# def create_user_and_delete():
-#     """Фикстура для создания уникального пользователя и удаления его после теста."""
-#     user_data = {
-#         "email": fake.email(),
-#         "password": fake.password(),
-#         "name": fake.name()
-#     }
-#     response = requests.post(urls.CREATE_USER, data=user_data)
-#     access_token = response.json().get("accessToken")
-#     yield user_data, response
-#
-#     # if access_token:
-#     #     requests.delete(Urls.DELETE_USER, headers={"Authorization": access_token})
-#
-# @pytest.fixture
-# def auth_token(create_user_and_delete):
-#     """Фикстура для получения токена авторизации созданного пользователя."""
-#     user_data, _ = create_user_and_delete
-#     login_response = requests.post(urls.LOGIN, data={
-#         "email": user_data["email"],
-#         "password": user_data["password"]
-#     })
-#     token = login_response.json().get("accessToken")
-#     return token
-#
-# @pytest.fixture
-# def create_order_with_auth(auth_token):
-#     """Фикстура для создания заказа авторизованным пользователем (используется в тестах)."""
-#     def _create_order(ingredients=None):
-#         if ingredients is None:
-#             ingredients = [UserData.VALID_INGREDIENT_1, UserData.VALID_INGREDIENT_2]
-#         payload = {"ingredients": ingredients}
-#         response = requests.post(urls.CREATE_ORDER, json=payload, headers={"Authorization": auth_token})
-#         return response
-#     return _create_order
-
 import pytest
 import requests
+
 from urls import Endpoints
-from data import TestData
+
 
 @pytest.fixture
 def create_and_delete_user():
@@ -86,6 +42,7 @@ def create_and_delete_user():
         headers = {"Authorization": access_token}
         requests.delete(Endpoints.USER_INFO, headers=headers)
 
+
 @pytest.fixture
 def create_user_for_login():
     """
@@ -120,6 +77,7 @@ def create_user_for_login():
     if access_token:
         headers = {"Authorization": access_token}
         requests.delete(Endpoints.USER_INFO, headers=headers)
+
 
 @pytest.fixture
 def get_ingredients():

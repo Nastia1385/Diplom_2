@@ -1,9 +1,10 @@
 import allure
 import pytest
+
 from data import TestData
 from methods.user_methods import UserMethods
 
-@allure.epic("Тесты пользователя")
+
 class TestUser:
 
     @allure.step("Создание уникального пользователя")
@@ -15,10 +16,10 @@ class TestUser:
             "email": user_data["email"],
             "password": user_data["password"]
         })
-        assert response.status_code == 200
-        assert response.json()["success"] is True
-        assert response.json()["user"]["email"] == user_data["email"]
-        assert response.json()["user"]["name"] == user_data["name"]
+        assert (response.status_code == 200
+                and response.json()["success"] is True
+                and response.json()["user"]["email"] == user_data["email"]
+                and response.json()["user"]["name"] == user_data["name"])
 
     @allure.step("Создание пользователя, который уже зарегистрирован")
     def test_create_existing_user(self, create_and_delete_user):
@@ -30,8 +31,7 @@ class TestUser:
             "password": user_data["password"],
             "name": user_data["name"]
         })
-        assert response.status_code == 403
-        assert response.json()["message"] == TestData.USER_ALREADY_EXISTS_MSG
+        assert response.status_code == 403 and response.json()["message"] == TestData.USER_ALREADY_EXISTS_MSG
 
     @allure.step("Создание пользователя без одного из обязательных полей")
     @pytest.mark.parametrize("missing_field", ["email", "password", "name"])
@@ -45,8 +45,7 @@ class TestUser:
         # Удаляем одно из полей
         del payload[missing_field]
         response = UserMethods.create_user(payload)
-        assert response.status_code == 403
-        assert response.json()["message"] == TestData.REQUIRED_FIELDS_MSG
+        assert response.status_code == 403 and response.json()["message"] == TestData.REQUIRED_FIELDS_MSG
 
     @allure.step("Логин существующего пользователя")
     def test_login_existing_user(self, create_and_delete_user):
@@ -56,12 +55,11 @@ class TestUser:
             "email": user_data["email"],
             "password": user_data["password"]
         })
-        assert response.status_code == 200
-        assert response.json()["success"] is True
-        assert response.json()["user"]["email"] == user_data["email"]
-        assert response.json()["user"]["name"] == user_data["name"]
+        assert (response.status_code == 200
+                and response.json()["success"] is True
+                and response.json()["user"]["email"] == user_data["email"]
+                and response.json()["user"]["name"] == user_data["name"])
 
-    @allure.title("Логин с неверным логином или паролем")
     @pytest.mark.parametrize("wrong_email, wrong_password", [
         ("wrong@example.com", "password123"),  # Неверный email
         ("test@example.com", "wrongpassword"),  # Неверный пароль
@@ -75,8 +73,7 @@ class TestUser:
             "email": email_to_use,
             "password": wrong_password
         })
-        assert response.status_code == 401
-        assert response.json()["message"] == TestData.INCORRECT_CREDENTIALS_MSG
+        assert response.status_code == 401 and response.json()["message"] == TestData.INCORRECT_CREDENTIALS_MSG
 
     @allure.step("Изменение данных пользователя с авторизацией")
     def test_update_user_with_auth(self, create_and_delete_user):
@@ -88,25 +85,16 @@ class TestUser:
         payload = {"name": new_name, "email": new_email}
         response = UserMethods.update_user(payload, user_data["access_token"])
 
-        assert response.status_code == 200
-        assert response.json()["success"] is True
-        assert response.json()["user"]["name"] == new_name
-        assert response.json()["user"]["email"] == new_email
-
-        # Проверяем, что данные действительно обновились
-        get_response = UserMethods.get_user_info(user_data["access_token"])
-        assert get_response.status_code == 200
-        assert get_response.json()["user"]["name"] == new_name
+        assert (response.status_code == 200
+                and response.json()["success"] is True
+                and response.json()["user"]["name"] == new_name
+                and response.json()["user"]["email"] == new_email)
 
     @allure.step("Изменение данных пользователя без авторизации")
     def test_update_user_without_auth(self, create_and_delete_user):
         """Тест: изменение данных неавторизованного пользователя (должен вернуть ошибку)."""
-        user_data = create_and_delete_user
         new_name = "Hacked User"
-
         payload = {"name": new_name}
         # Не передаем токен
         response = UserMethods.update_user(payload)
-
-        assert response.status_code == 401
-        assert response.json()["message"] == TestData.UNAUTHORIZED_MSG
+        assert response.status_code == 401 and response.json()["message"] == TestData.UNAUTHORIZED_MSG

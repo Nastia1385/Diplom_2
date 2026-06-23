@@ -4,7 +4,6 @@ from data import TestData
 from methods.order_methods import OrderMethods
 
 
-@allure.epic("Тесты заказов")
 class TestOrder:
 
     @allure.step("Создание заказа с авторизацией")
@@ -13,16 +12,19 @@ class TestOrder:
         user_data = create_and_delete_user
         ingredients = get_ingredients
         response = OrderMethods.create_order(ingredients, user_data["access_token"])
-        assert response.status_code == 200 and response.json()["success"] is True
-        assert "order" in response.json() and "number" in response.json()["order"]
+        assert (response.status_code == 200
+                and response.json()["success"] is True
+                and "order" in response.json()
+                and "number" in response.json()["order"])
 
     @allure.step("Создание заказа без авторизации")
     def test_create_order_without_auth(self, get_ingredients):
         """Тест: создание заказа неавторизованным пользователем."""
         ingredients = get_ingredients
         response = OrderMethods.create_order(ingredients)
-        assert response.status_code == 200 and response.json()["success"] is True
-        assert "order" in response.json()
+        assert (response.status_code == 200
+                and response.json()["success"] is True
+                and "order" in response.json())
 
     @allure.step("Создание заказа с ингредиентами")
     def test_create_order_with_ingredients(self, create_and_delete_user, get_ingredients):

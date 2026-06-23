@@ -1,5 +1,7 @@
 import requests
+
 from urls import Endpoints
+
 
 class OrderMethods:
     """Класс для работы с методами заказов."""

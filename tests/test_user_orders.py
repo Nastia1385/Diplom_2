@@ -16,9 +16,10 @@ class TestUserOrders:
         OrderMethods.create_order(ingredients, user_data["access_token"])
         # Получаем заказы
         response = OrderMethods.get_user_orders(user_data["access_token"])
-        assert response.status_code == 200 and response.json()["success"] is True
-        # Проверяем, что заказ есть в списке
-        assert "orders" in response.json() and len(response.json()["orders"]) > 0
+        assert (response.status_code == 200
+                and response.json()["success"] is True
+                and "orders" in response.json()
+                and len(response.json()["orders"]) > 0)
 
     @allure.step("Получение заказов неавторизованного пользователя")
     def test_get_orders_without_auth(self):
