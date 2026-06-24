@@ -64,13 +64,11 @@ class TestUser:
         ("wrong@example.com", "password123"),  # Неверный email
         ("test@example.com", "wrongpassword"),  # Неверный пароль
     ])
-    def test_login_invalid_credentials(self, create_and_delete_user, wrong_email, wrong_password):
+    def test_login_invalid_credentials(self, wrong_email, wrong_password):
         """Тест: логин с неверными данными."""
-        user_data = create_and_delete_user
         # Для теста с паролем используем существующий email
-        email_to_use = user_data["email"] if "wrong@example.com" in wrong_email else wrong_email
         response = UserMethods.login_user({
-            "email": email_to_use,
+            "email": wrong_email,
             "password": wrong_password
         })
         assert response.status_code == 401 and response.json()["message"] == TestData.INCORRECT_CREDENTIALS_MSG

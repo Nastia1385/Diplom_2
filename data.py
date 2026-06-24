@@ -1,4 +1,3 @@
-# Данные для тестов
 class TestData:
     # Корректные данные пользователя по умолчанию
     DEFAULT_EMAIL = "testuser@example.com"
