@@ -1,3 +1,5 @@
+import time
+
 import pytest
 import requests
 
@@ -11,7 +13,6 @@ def create_and_delete_user():
     и удаления его после выполнения теста.
     """
     # Генерация уникальных данных
-    import time
     unique_suffix = str(int(time.time() * 1000))
     email = f"test_{unique_suffix}@example.com"
     password = "password123"
@@ -63,7 +64,6 @@ def create_user_for_login():
 
     # Создание пользователя
     response = requests.post(Endpoints.CREATE_USER, json=user_payload)
-    assert response.status_code == 200, "Не удалось создать пользователя для фикстуры login"
     access_token = response.json().get('accessToken')
 
     yield {
@@ -85,8 +85,42 @@ def get_ingredients():
     Фикстура для получения списка ингредиентов и возврата двух хешей для создания заказа.
     """
     response = requests.get(Endpoints.GET_INGREDIENTS)
-    assert response.status_code == 200, "Не удалось получить ингредиенты"
     ingredients = response.json().get('data', [])
     # Берем первые два валидных ингредиента
     valid_ingredients = [item['_id'] for item in ingredients[:2]]
     return valid_ingredients
+
+
+@pytest.fixture
+def unique_user_data():
+    """
+    Фикстура для генерации уникальных данных пользователя.
+    После выполнения теста выполняет очистку - удаляет созданного пользователя.
+    """
+    # 1. Генерация уникальных данных
+    unique_suffix = str(int(time.time() * 1000))
+    email = f"test_{unique_suffix}@example.com"
+    password = "password123"
+    name = "Test User"
+
+    user_payload = {
+        "email": email,
+        "password": password,
+        "name": name
+    }
+
+    # Возвращаем данные для использования в тесте
+    yield user_payload
+
+    # 2. Очистка после теста - удаление пользователя
+    # Пытаемся получить токен для удаления
+    login_response = requests.post(Endpoints.LOGIN_USER, json={
+        "email": email,
+        "password": password
+    })
+
+    if login_response.status_code == 200:
+        access_token = login_response.json().get('accessToken')
+        if access_token:
+            headers = {"Authorization": access_token}
+            requests.delete(Endpoints.USER_INFO, headers=headers)

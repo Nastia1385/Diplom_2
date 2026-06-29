@@ -8,18 +8,28 @@ from methods.user_methods import UserMethods
 class TestUser:
 
     @allure.step("Создание уникального пользователя")
-    def test_create_unique_user(self, create_and_delete_user):
+    def test_create_unique_user(self, unique_user_data):
         """Тест: создание уникального пользователя."""
-        user_data = create_and_delete_user
-        # Пользователь уже создан фикстурой, просто проверяем, что он есть
-        response = UserMethods.login_user({
-            "email": user_data["email"],
-            "password": user_data["password"]
-        })
-        assert (response.status_code == 200
-                and response.json()["success"] is True
-                and response.json()["user"]["email"] == user_data["email"]
-                and response.json()["user"]["name"] == user_data["name"])
+        # 1. Выполнение шага регистрации
+        create_response = UserMethods.create_user(unique_user_data)
+
+        # 2. Проверка ответа на создание
+        assert (create_response.status_code == 200
+                and create_response.json()["success"] is True
+                and create_response.json()["user"]["email"] == unique_user_data["email"]
+                and create_response.json()["user"]["name"] == unique_user_data["name"])
+    # def test_create_unique_user(self, create_and_delete_user):
+    #     """Тест: создание уникального пользователя."""
+    #     user_data = create_and_delete_user
+    #     # Пользователь уже создан фикстурой, просто проверяем, что он есть
+    #     response = UserMethods.login_user({
+    #         "email": user_data["email"],
+    #         "password": user_data["password"]
+    #     })
+    #     assert (response.status_code == 200
+    #             and response.json()["success"] is True
+    #             and response.json()["user"]["email"] == user_data["email"]
+    #             and response.json()["user"]["name"] == user_data["name"])
 
     @allure.step("Создание пользователя, который уже зарегистрирован")
     def test_create_existing_user(self, create_and_delete_user):
