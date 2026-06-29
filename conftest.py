@@ -50,7 +50,6 @@ def create_user_for_login():
     Фикстура для создания пользователя, который будет существовать
     в системе для тестов логина.
     """
-    import time
     unique_suffix = str(int(time.time() * 1000))
     email = f"login_test_{unique_suffix}@example.com"
     password = "password123"
